@@ -29,6 +29,8 @@ export class MyBot implements Bot {
             const ballRegion = this.mapper.getRegionFromPoint(ballPosition)
             const myRegion = this.mapper.getRegionFromPoint(me.getPosition())
 
+            const myGoalCenter = this.mapper.getRegionFromPoint(reader.getOpponentGoal().getCenter())
+
             // by default, I will stay at my tactic position
             let moveDestination = getMyExpectedPosition(reader, this.mapper, this.number)
             orderSet.setDebugMessage("returning to my position")
@@ -37,6 +39,11 @@ export class MyBot implements Bot {
             if (this.shouldICatchTheBall(reader, me)) {
                 moveDestination = ballPosition
                 orderSet.setDebugMessage("trying to catch the ball")
+            }
+            else{ 
+                if(me.getNumber() > 4 && this.isINear(myRegion, myGoalCenter, 1)){
+                    moveDestination = reader.getOpponentGoal().getCenter();
+                }
             }
 
             const moveOrder = reader.makeOrderMoveMaxSpeed(me.getPosition(), moveDestination)
@@ -244,7 +251,7 @@ export class MyBot implements Bot {
             const playerDist = geo.distanceBetweenPoints(player.getPosition(), reader.getBall().getPosition())
             if (playerDist < myDistance) {
                 closerPlayer++;
-                if (closerPlayer >= 2) {
+                if (closerPlayer >= 3) {
                     return false;
                 }
             }

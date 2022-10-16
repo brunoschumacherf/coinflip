@@ -18,6 +18,8 @@ var MyBot = /** @class */ (function () {
             var ballPosition = snapshot.getBall().getPosition();
             var ballRegion = this.mapper.getRegionFromPoint(ballPosition);
             var myRegion = this.mapper.getRegionFromPoint(me.getPosition());
+            var myGoalCenter = this.mapper.getRegionFromPoint(reader.getOpponentGoal().getCenter());
+            var currentRegion = this.mapper.getRegionFromPoint(me.getPosition());
             // by default, I will stay at my tactic position
             var moveDestination = (0, settings_1.getMyExpectedPosition)(reader, this.mapper, this.number);
             orderSet.setDebugMessage("returning to my position");
@@ -25,6 +27,13 @@ var MyBot = /** @class */ (function () {
             if (this.shouldICatchTheBall(reader, me)) {
                 moveDestination = ballPosition;
                 orderSet.setDebugMessage("trying to catch the ball");
+            }
+            else {
+                if (me.getNumber() > 3 && this.isINear(currentRegion, myGoalCenter, 2)) {
+                    moveDestination = reader.getOpponentGoal().getCenter();
+                }
+                else
+                    moveDestination = me.getInitPosition();
             }
             var moveOrder = reader.makeOrderMoveMaxSpeed(me.getPosition(), moveDestination);
             // we can ALWAYS try to catch the ball it we are not holding it
@@ -201,7 +210,7 @@ var MyBot = /** @class */ (function () {
             var playerDist = lugo4node_1.geo.distanceBetweenPoints(player.getPosition(), reader.getBall().getPosition());
             if (playerDist < myDistance) {
                 closerPlayer++;
-                if (closerPlayer >= 2) {
+                if (closerPlayer > 3) {
                     return false;
                 }
             }
